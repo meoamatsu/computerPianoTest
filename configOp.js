@@ -1,4 +1,4 @@
-// @version V1.0.0.1
+// @version V1.0.0.2
 //作者：电脑圈圈 https://space.bilibili.com/565718633
 //日期：2025-12-07
 //功能：配置参数
@@ -18,6 +18,9 @@ const ninthChords = ['maj9', 'm9', 'm7b9', 'maj9', '9', 'm9', 'm7b5b9'];
 const chordDegNames = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII'];
 
 function getChordFuncName(sing, nNotes) {
+  if (trainMode.endsWith('block_chord')) {
+    nNotes -= 1;
+  }
   if (nNotes == 3) {
     return triadChords[sing - 1];
   } else if (nNotes == 4) {
@@ -131,7 +134,7 @@ function onAutoPlay() {
     }
     note = kbNotes[lastKey - kbNotes[0].note];
 
-    if ((noteIndex == 0) && trainMode.endsWith("chord") && trainMode.startsWith("Train")) {
+    if ((noteIndex == (refNote == -2 ? 0 : 1)) && trainMode.endsWith("chord") && trainMode.startsWith("Train")) {
       if ((curTimes >= trainTimes) && ((noteSeqs.length - piano.skipAnsCnt) >= 3)) {
         globalInfoText = getChordName(noteSeqs[piano.skipAnsCnt]);
         globalInfoTextSize = 30;
@@ -150,7 +153,7 @@ function onAutoPlay() {
       } else {
         for (let i = 0; i < noteSeqs.length; i ++) {
           note = kbNotes[noteSeqs[i] - kbNotes[0].note];
-          if ((i == 0) && trainMode.endsWith("block_chord") && refNote >= -1) {
+          if (i == 0) {
           } else {
             piano.onKeyDown(note, curTimes >= trainTimes, false);
           }
@@ -197,6 +200,16 @@ function onAutoPlay() {
   playTimerId = setTimeout(onAutoPlay, playInterval);
 }
 
+function simStopEvent() {
+  const event = new Event('click', {bubbles: true, cancelable: true});
+  event.simulated = true;
+  const element = document.querySelector(`[name="START_STOP"]`);
+  if (element != null) {
+    element.dispatchEvent(event);
+  }
+  showAnsEndInfo();
+}
+
 function onTestNext(isCorrect) {
   piano.allKeysUp();
   curAnsCnt ++;
@@ -211,16 +224,10 @@ function onTestNext(isCorrect) {
   if (curAnsCnt < testTimes) {
     globalInfoText = "共答对" + correctAnsCnt + "题\n已完成" + curAnsCnt + "题，共" + testTimes + '题';
     globalInfoTextSize = 20;
-    playTimerId = setTimeout(onAutoPlay, 1000);
+    playTimerId = setTimeout(onAutoPlay, 600);
   } else {
     playTimerId = -1;
-    const event = new Event('click', {bubbles: true, cancelable: true});
-    event.simulated = true;
-    const element = document.querySelector(`[name="START_STOP"]`);
-    if (element != null) {
-      element.dispatchEvent(event);
-    }
-    showAnsEndInfo();
+    setTimeout(simStopEvent, 600);
   }
   needCleanHist = true;
 }
@@ -363,7 +370,8 @@ function genChord() {
       seq = new Int32Array(seqLen + 1);
       tryFindDiffNote(seq, 0);
     } else if (refNote == -2) {
-      seq = new Int32Array(seqLen);
+      seq = new Int32Array(seqLen + 1);
+      tryFindDiffNote(seq, 0);
     }
   } else {
     seq = new Int32Array(seqLen);
@@ -388,25 +396,30 @@ function tryFindDiffNote(seq, index) {
 }
 
 function genNoteSeqs() {
+  let seqLenAct = seqLen;
   noteIndex = 0;
 
   if (trainMode.endsWith("chord")) {
     return genChord();
   }
 
-  if (trainMode.endsWith("interval")) {
-    seqLen = 2;
+  if ((seqLen > 1) && trainMode.endsWith("interval")) {
+    seqLenAct = 3;
   }
 
-  const seq = new Int32Array(seqLen);
+  const seq = new Int32Array(seqLenAct);
 
-  if (refNote < 0 || seqLen == 1) {
+  if ((refNote < 0) || (seqLenAct == 1)) {
     tryFindDiffNote(seq, 0);
   } else {
     seq[0] = refNote;
   }
 
-  for (let i = 1; i < seqLen; i ++) {
+  for (let i = 1; i < seqLenAct; i ++) {
+    if ((i == 1) && (seqLen == 2) && trainMode.endsWith("interval")) {
+        seq[1] = seq[0]; // the ref note
+        continue;
+    }
     seq[i] = genOneNote();
     for (let j = 0; j < 3; j ++) {
       let hasFound = 0;
@@ -455,6 +468,7 @@ function stopPlay() {
 function onModeSelClick() {
   trainMode = event.target.value;
   disableUi(false);
+  updateSeqLenSel();
   updateRefSel();
 }
 
@@ -569,13 +583,39 @@ function updateLowSel() {
   lowSelValue = parseInt(selectElement.value, 10);
 }
 
+function updateSeqLenSel() {
+  const seqLenOpts = [
+    '单音', '双音', '三音', '四音', '五音',
+  ];
+  let start = 0;
+  let end = seqLenOpts.length;
+  if (trainMode.endsWith('interval')) {
+    start = 1;
+	end = 3;
+  } else if (trainMode.endsWith('chord')) {
+    start = 2;
+  }
+  const selectElement = document.querySelector('[name="seqLenSelect"]');
+  let lastIndex = selectElement.selectedIndex;
+  selectElement.innerHTML = '';
+  for (let i = start; i < end; i ++) {
+    const optionElement = document.createElement('option');
+    optionElement.value = i + 1;
+    optionElement.textContent = seqLenOpts[i];
+    selectElement.appendChild(optionElement);
+  }
+  if (lastIndex > end - start) {
+    lastIndex = end - start - 1;
+  }
+  selectElement.selectedIndex = lastIndex;
+}
+
 function updateRefSel() {
-  let i;
   const selectElement = document.querySelector('[name="refSelect"]');
   let lastIndex = selectElement.selectedIndex;
   selectElement.innerHTML = '';
 
-  for (i = lowSelValue; i <= hiSelValue; i ++) {
+  for (let i = lowSelValue; i <= hiSelValue; i ++) {
     if (i < 0) {
       break;
     }
@@ -595,7 +635,7 @@ function updateRefSel() {
   selectElement.appendChild(optionElement);
 
   if (trainMode.endsWith('broken_chord')) {
-   lastIndex = selectElement.options.length - 1;
+    lastIndex = selectElement.options.length - 1;
   }
   if (lastIndex < selectElement.options.length) {
     selectElement.selectedIndex = lastIndex;
@@ -699,6 +739,15 @@ function onKeySelClick() {
 
 function onSeqLenSelClick() {
   seqLen = parseInt(event.target.value, 10);
+  if (trainMode.endsWith("interval")) {
+    if (seqLen < 2) {
+      seqLen = 2;
+      event.target.value = '2';
+    } else if (seqLen > 3) {
+      seqLen = 3;
+      event.target.value = '3';
+    }
+  }
   updateLowSel();
   updateHiSel();
 }
@@ -707,8 +756,25 @@ function onRefSelClick() {
   refSelValue = parseInt(event.target.value, 10);
 }
 
-function onSpeedSelClick() {
+let userDefSpeed = 120;
+async function onSpeedSelClick() {
   playInterval = parseInt(event.target.value, 10);
+  if (playInterval < 0) {
+    if (!event.simulated) {
+      let speed = await customPrompt('请输入速度(拍每分):', '' + userDefSpeed);
+      if (speed >= 30 && speed <= 600) {
+        userDefSpeed = speed;
+	  } else if (speed < 30) {
+        userDefSpeed = 30;
+      } else if (speed > 600) {
+        userDefSpeed = 600;
+      }
+    }
+    playInterval = 60000 / userDefSpeed;
+    console.log('speed = ' + userDefSpeed + ', playInterval = ' + playInterval);
+    globalInfoText = "当前速度为\n" + userDefSpeed + '拍每分';
+    piano.cleanHistNoteInfo(true);
+  }
 }
 
 function updateStartEndIndicator() {
@@ -799,6 +865,7 @@ function onStartStoplick() {
 }
 
 const configPairs = [
+  {key:'userDefSpeed', def:'120'},
   {key:"modeSelect", def:'Train_single'},
   {key:'keySelect', def:'0'},
   {key:'seqLenSelect', def:'3'},
@@ -823,6 +890,9 @@ function loadAllConfigs() {
       selectElement.value = cfg;
       selectElement.dispatchEvent(event);
     }
+    if (key === 'userDefSpeed') {
+      userDefSpeed = parseInt(cfg);
+    }
   }
 }
 
@@ -832,6 +902,9 @@ function saveAllConfigs() {
     const selectElement = document.querySelector(`[name="${key}"]`);
     if (selectElement != null) {
       saveConfigToLocal(key, '' + selectElement.value);
+    }
+    if (key === 'userDefSpeed') {
+      saveConfigToLocal(key, '' + userDefSpeed);
     }
   }
 }

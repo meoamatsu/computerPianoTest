@@ -1,4 +1,4 @@
-// @version V1.0.0.1
+// @version V1.0.0.2
 //作者：电脑圈圈 https://space.bilibili.com/565718633
 //日期：2025-12-07
 //功能：配置界面
@@ -158,13 +158,14 @@ function configUiLoad() {
 
       <td>
         <select class="selects" name="speedSelect" onchange="onSpeedSelClick()">
-        <option value='1000'>超慢</option>
-        <option value='800'>很慢</option>
-        <option value='650'>慢</option>
-        <option value='550'>适中</option>
-        <option value='300'>快</option>
-        <option value='220'>很快</option>
-        <option value='180'>超快</option>
+        <option value='1000'>60</option>
+        <option value='800'>75</option>
+        <option value='666'>90</option>
+        <option value='545'>110</option>
+        <option value='333'>180</option>
+        <option value='222'>270</option>
+        <option value='181'>330</option>
+        <option value='-1'>自定义</option>
         </select>
       </td>
 
@@ -278,6 +279,78 @@ function updateLoadingInfo(progress = 100, message = null) {
 function hideLoading() {
   const dialog = document.getElementById('loadingDialog');
   if (dialog) dialog.remove();
+}
+
+function customPrompt(message, defaultValue) {
+  const overlay = document.createElement('div');
+  overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.3);z-index:9999;';
+  const dialog = document.createElement('div');
+  dialog.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:white;padding:20px;border-radius:5px;box-shadow:0 2px 10px rgba(0,0,0,0.2);min-width:300px;z-index:10000;';
+
+  const msg = document.createElement('div');
+  msg.textContent = message || '请输入速度(拍每分):';
+  msg.style.marginBottom = '10px';
+
+  const input = document.createElement('input');
+  input.type = 'text';
+  input.value = defaultValue || '';
+  input.style.cssText = 'width:100%;padding:8px;margin-bottom:15px;box-sizing:border-box;';
+
+  const buttons = document.createElement('div');
+  buttons.style.cssText = 'text-align:right;';
+
+  const cancelBtn = document.createElement('button');
+  cancelBtn.textContent = '取消';
+  cancelBtn.style.cssText = 'margin-right:10px;padding:6px 12px;cursor:pointer;';
+
+  const okBtn = document.createElement('button');
+  okBtn.textContent = '确定';
+  okBtn.style.cssText = 'padding:6px 12px;cursor:pointer;';
+
+  buttons.appendChild(cancelBtn);
+  buttons.appendChild(okBtn);
+  dialog.appendChild(msg);
+  dialog.appendChild(input);
+  dialog.appendChild(buttons);
+  overlay.appendChild(dialog);
+  document.body.appendChild(overlay);
+
+  input.focus();
+  input.select();
+
+  return new Promise((resolve) => {
+    const handleOk = () => {
+      cleanup();
+      resolve(input.value || defaultValue);
+    };
+
+    const handleCancel = () => {
+      cleanup();
+      resolve(defaultValue);
+    };
+
+    const handleKeydown = (e) => {
+      if (e.key === 'Enter') handleOk();
+      if (e.key === 'Escape') handleCancel();
+    };
+
+    const cleanup = () => {
+      document.body.removeChild(overlay);
+      okBtn.removeEventListener('click', handleOk);
+      cancelBtn.removeEventListener('click', handleCancel);
+      document.removeEventListener('keydown', handleKeydown);
+      overlay.removeEventListener('click', handleOverlayClick);
+    };
+
+    const handleOverlayClick = (e) => {
+      if (e.target === overlay) handleCancel();
+    };
+
+    okBtn.addEventListener('click', handleOk);
+    cancelBtn.addEventListener('click', handleCancel);
+    document.addEventListener('keydown', handleKeydown);
+    overlay.addEventListener('click', handleOverlayClick);
+  });
 }
 
 document.addEventListener('ceAllJsLoadDoneEvent', configUiLoad);

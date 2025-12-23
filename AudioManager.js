@@ -1,4 +1,4 @@
-// @version V1.0.0.1
+// @version V1.0.0.2
 //作者：电脑圈圈 https://space.bilibili.com/565718633
 //日期：2025-12-07
 //功能：合成钢琴音色
@@ -238,7 +238,7 @@ class AudioManager {
     return splitPoints;
   }
 
-  async cacheMp3ToLocalDb(mp3Data, cacheId, currentVersion) {
+  async cacheMp3ToLocalDb(mp3Data, cacheId, currentVersion, procRet) {
     if (!this.db) {
       throw new Error('Database not initialized');
     }
@@ -252,6 +252,7 @@ class AudioManager {
         version: currentVersion,
         timestamp: Date.now(),
         data: mp3Data,
+        splitPoints: procRet ? procRet.splitPoints : null,
       };
 
       const audioStore = transaction.objectStore('audio_cache');
@@ -304,7 +305,7 @@ class AudioManager {
         }
 
         console.log('Audio loaded from cache successfully');
-        resolve(cachedData.data);
+        resolve(cachedData);
       };
 
       request.onerror = (event) => {
@@ -314,14 +315,14 @@ class AudioManager {
     });
   }
 
-  async processAudio(mp3Data) {
+  async processAudio(mp3Data, cSplitPoints) {
     try {
       const wavData = await this.decodeMP3ToWAV(mp3Data);
       await new Promise(resolve => setTimeout(resolve, 10));
 
       this.updateProgressInfo(10, '正在处理音频……');
       await new Promise(resolve => setTimeout(resolve, 10));
-      const splitPoints = await this.genSplitPoints(wavData);
+      const splitPoints = cSplitPoints ? cSplitPoints : await this.genSplitPoints(wavData);
       this.updateProgressInfo(100, '处理音频完成');
       await new Promise(resolve => setTimeout(resolve, 10));
 
@@ -348,12 +349,19 @@ class AudioManager {
         console.log('Version for [' + cacheId + '] matches, using cached data');
         this.updateProgressInfo(15, '正在从本地加载' + cacheId + '缓存……');
         await new Promise(resolve => setTimeout(resolve, 10));
-        const mp3Data = await this.loadMp3FromLocalDb(cacheId, newVersion);
+        const cacheRet = await this.loadMp3FromLocalDb(cacheId, newVersion);
+        const mp3Data = cacheRet.data;
         this.updateProgressInfo(100, '加载缓存完成');
         await new Promise(resolve => setTimeout(resolve, 10));
         let ret = null;
         if (mp3Data) {
-          ret = await this.processAudio(mp3Data);
+          if (!cacheRet.splitPoints) {
+            var mp3Data_ = mp3Data.slice(0);
+          }
+          ret = await this.processAudio(mp3Data, cacheRet.splitPoints);
+          if (!cacheRet.splitPoints && ret) {
+            await this.cacheMp3ToLocalDb(mp3Data_, cacheId, newVersion, ret);
+          }
         }
         return ret;
       }
@@ -369,7 +377,7 @@ class AudioManager {
         if (ret) {
           this.updateProgressInfo(13, '正在缓存到本地……');
           await new Promise(resolve => setTimeout(resolve, 10));
-          await this.cacheMp3ToLocalDb(mp3Data.buffer, cacheId, newVersion);
+          await this.cacheMp3ToLocalDb(mp3Data.buffer, cacheId, newVersion, ret);
           this.updateProgressInfo(100, '缓存完成');
           await new Promise(resolve => setTimeout(resolve, 10));
           console.log('Mp3 update completed');

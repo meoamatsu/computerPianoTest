@@ -1,19 +1,19 @@
-// @version V1.0.0.1
+// @version V1.0.0.2
 //作者：电脑圈圈 https://space.bilibili.com/565718633
 //日期：2025-12-07
 //功能：显示器
 //所有版权归作者电脑圈圈所有，仅供爱好者免费使用，严禁用于任何商业用途，否则后果自负
 
 class SimpleDisplay {
-  constructor(containerId, width = 1012, height = 123) {
+  constructor(containerId, width = 1012, height = 142) {
     this.container = document.getElementById(containerId);
     this.width = width;
     this.height = height;
 
-    this.lineSpacing = 14;
-    this.Top = 32;
+    this.lineSpacing = 16;
+    this.Top = 38;
     this.noteX = 30;
-    this.noteRadius = 5;
+    this.noteRadius = 6;
     this.noteOffset = [0, 0, 1, 1, 2, 3, 3, 4, 4, 5, 5, 6];
 
     this.init();
@@ -168,7 +168,7 @@ class SimpleDisplay {
         }
         const acc = document.createElement('div');
         const symbol = flat ? 'b' : '♯';
-        const Y = flat ? noteY - 14 : noteY - 13;
+        const Y = flat ? noteY - 12 : noteY - 13;
         const X = flat ? noteX - 14 : noteX - 11;
         acc.textContent = symbol;
         acc.style.cssText = `
@@ -239,7 +239,7 @@ class SimpleDisplay {
     num.textContent = noteNames + '\n' + displayText;
     num.style.cssText = `
       color: #ff9900;
-      font-size: 28px;
+      font-size: 36px;
       white-space: pre-wrap;
       text-align: left !important;
       font-family: monospace;

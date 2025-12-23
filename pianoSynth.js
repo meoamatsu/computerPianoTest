@@ -1,4 +1,4 @@
-// @version V1.0.0.1
+// @version V1.0.0.2
 //作者：电脑圈圈 https://space.bilibili.com/565718633
 //日期：2025-12-07
 //功能：合成钢琴音色
@@ -548,8 +548,8 @@ class PianoSynth {
       this.dispNotes[this.curInputIndex] = note.note;
       if (this.ansNotes != null) {
         if (trainMode == 'Test_interval') {
-          if (((note.note == this.ansNotes[0]) || (note.note == this.ansNotes[1])) &&
-              ((this.curInputIndex == 0) || (this.dispNotes[0] != note.note || this.ansNotes[0] == this.ansNotes[1]))) {
+          if (((note.note == this.ansNotes[1]) || (note.note == this.ansNotes[2])) &&
+              ((this.curInputIndex == 1) || (this.dispNotes[1] != note.note || this.ansNotes[1] == this.ansNotes[2]))) {
             this.noteColors[this.curInputIndex] = 0xFF99FF00;
           } else {
             this.noteColors[this.curInputIndex] = 0xFFFF0000;
@@ -577,8 +577,8 @@ class PianoSynth {
     }
     const velocity = 0.9 + Math.random() * 0.1;
     if ((this.ansNotes != null) && (this.curInputIndex == this.ansNotes.length)) {
+      // window.Display.showNotes(this.dispNotes, noteColors, this.dispNames, isFlatKey);
       onTestNext(this.checkCorrect());
-      window.Display.showNotes(this.dispNotes, noteColors, this.dispNames, isFlatKey);
       this.curInputIndex ++;
     }
     if ((playTimerId != -1) && (trainMode.startsWith("Test")) && (byUser == true)) {
@@ -598,8 +598,8 @@ class PianoSynth {
 
     if (this.ansNotes != null) {
       if (trainMode === 'Test_interval') {
-        if (this.curInputIndex == 2) {
-          if ((this.ansNotes[0] == this.dispNotes[1]) && (this.ansNotes[1] == this.dispNotes[0])) {
+        if (this.curInputIndex == 3) {
+          if ((this.ansNotes[1] == this.dispNotes[2]) && (this.ansNotes[2] == this.dispNotes[1])) {
             return true;
           }
         }
@@ -617,7 +617,9 @@ class PianoSynth {
 
   cleanHistNoteInfo(upAllKeys = false) {
     this.skipAnsCnt = 0;
-    if ((refNote >= -1) && (trainMode == 'Test_block_chord')) {
+    if (trainMode.endsWith('block_chord')) {
+      this.skipAnsCnt = 1;
+    } else if (trainMode.endsWith('interval')) {
       this.skipAnsCnt = 1;
     }
     this.curInputIndex = this.skipAnsCnt;

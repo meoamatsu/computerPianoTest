@@ -314,11 +314,11 @@ const jsLoader = new JsLoader();
 
 document.addEventListener('DOMContentLoaded', async () => {
   allNeedJsFile = [
-    {path: 'AudioManager.js', version: 'V1.0.0.1'},
-    {path: 'pianoSynth.js', version: 'V1.0.0.1' },
-    {path: 'configUi.js', version: 'V1.0.0.1' },
-    {path: 'configOp.js', version: 'V1.0.0.1' },
-    {path: 'displayer.js', version: 'V1.0.0.1' },
+    {path: 'AudioManager.js', version: 'V1.0.0.2'},
+    {path: 'pianoSynth.js', version: 'V1.0.0.2' },
+    {path: 'configUi.js', version: 'V1.0.0.2' },
+    {path: 'configOp.js', version: 'V1.0.0.2' },
+    {path: 'displayer.js', version: 'V1.0.0.2' },
   ];
 
   console.log('start to load js...');
