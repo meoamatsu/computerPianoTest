@@ -1,4 +1,4 @@
-// @version V1.0.0.3
+// @version V1.0.0.4
 //作者：电脑圈圈 https://space.bilibili.com/565718633
 //日期：2025-12-07
 //功能：配置参数
@@ -18,9 +18,6 @@ const ninthChords = ['maj9', 'm9', 'm7b9', 'maj9', '9', 'm9', 'm7b5b9'];
 const chordDegNames = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII'];
 
 function getChordFuncName(sing, nNotes) {
-  if (trainMode.endsWith('block_chord')) {
-    nNotes -= 1;
-  }
   if (nNotes == 3) {
     return triadChords[sing - 1];
   } else if (nNotes == 4) {
@@ -211,12 +208,12 @@ function simStopEvent() {
 }
 
 function onTestNext(isCorrect) {
+  clearTimeout(playTimerId);
   piano.allKeysUp();
   curAnsCnt ++;
   if (isCorrect) {
     correctAnsCnt ++;
   }
-  clearTimeout(playTimerId);
   noteIndex = 0;
   curTimes ++;
   noteSeqs = genNoteSeqs();
@@ -469,7 +466,6 @@ function onModeSelClick() {
   trainMode = event.target.value;
   disableUi(false);
   updateSeqLenSel();
-  updateRefSel();
 }
 
 function calLowest() {
@@ -578,9 +574,10 @@ function updateLowSel() {
   if (lastIndex < selectElement.options.length) {
     selectElement.selectedIndex = lastIndex;
   } else {
-    selectElement.selectedIndex = selectElement.options.length * 1 / 3;
+    selectElement.selectedIndex = selectElement.options.length - 1;
   }
   lowSelValue = parseInt(selectElement.value, 10);
+  updateHiSel();
 }
 
 function updateSeqLenSel() {
@@ -604,10 +601,12 @@ function updateSeqLenSel() {
     optionElement.textContent = seqLenOpts[i];
     selectElement.appendChild(optionElement);
   }
-  if (lastIndex > end - start) {
+  if (lastIndex >= end - start) {
     lastIndex = end - start - 1;
   }
   selectElement.selectedIndex = lastIndex;
+  seqLen = parseInt(selectElement.value, 10);
+  updateLowSel();
 }
 
 function updateRefSel() {
@@ -640,7 +639,7 @@ function updateRefSel() {
   if (lastIndex < selectElement.options.length) {
     selectElement.selectedIndex = lastIndex;
   } else {
-    selectElement.selectedIndex = selectElement.options.length * 1 / 3;
+    selectElement.selectedIndex = selectElement.options.length  - 1;
   }
 
   refSelValue = parseInt(selectElement.value, 10);
@@ -672,7 +671,7 @@ function updateHiSel() {
   if (lastIndex < selectElement.options.length) {
     selectElement.selectedIndex = lastIndex;
   } else {
-    selectElement.selectedIndex = selectElement.options.length * 1 / 3;
+    selectElement.selectedIndex = selectElement.options.length - 1;
   }
 
   hiSelValue = parseInt(selectElement.value, 10);
@@ -733,7 +732,6 @@ function onKeySelClick() {
   calHiest();
   calAllNotes();
   updateLowSel();
-  updateHiSel();
   updateKbNoteNames();
 }
 
@@ -749,7 +747,6 @@ function onSeqLenSelClick() {
     }
   }
   updateLowSel();
-  updateHiSel();
 }
 
 function onRefSelClick() {
@@ -810,7 +807,6 @@ function onLowSelClick() {
 function onHiSelClick() {
   hiSelValue = parseInt(event.target.value, 10);
   updateRefSel();
-  updateStartEndIndicator();
 }
 
 function onTrainTimesSelClick() {
