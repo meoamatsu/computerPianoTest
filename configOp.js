@@ -1,4 +1,4 @@
-// @version V1.0.0.4
+// @version V1.0.0.5
 //作者：电脑圈圈 https://space.bilibili.com/565718633
 //日期：2025-12-07
 //功能：配置参数
@@ -807,6 +807,7 @@ function onLowSelClick() {
 function onHiSelClick() {
   hiSelValue = parseInt(event.target.value, 10);
   updateRefSel();
+  updateStartEndIndicator();
 }
 
 function onTrainTimesSelClick() {
@@ -862,8 +863,8 @@ function onStartStoplick() {
 
 const configPairs = [
   {key:'userDefSpeed', def:'120'},
-  {key:"modeSelect", def:'Train_single'},
   {key:'keySelect', def:'0'},
+  {key:"modeSelect", def:'Train_single'},
   {key:'seqLenSelect', def:'3'},
   {key:'lowSelect', def:'4'},
   {key:'hiSelect', def:'7'},
@@ -930,8 +931,8 @@ function removeConfigFromLocal(key) {
 }
 
 const needDisableUis = [
-  {key:"modeSelect"},
   {key:'keySelect'},
+  {key:"modeSelect"},
   {key:'seqLenSelect'},
   {key:'lowSelect'},
   {key:'hiSelect'},
