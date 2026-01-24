@@ -1,4 +1,4 @@
-// @version V1.0.0.2
+// @version V1.0.0.3
 //作者：电脑圈圈 https://space.bilibili.com/565718633
 //日期：2025-12-07
 //功能：合成钢琴音色
@@ -462,7 +462,7 @@ class PianoSynth {
   }
 
   async playMIDINote(midiNote, duration = 1.5, velocity = 0.9) {
-    const ret = await AudioManagerAPI.playAudioSegment('piano', midiNote - 21);
+    const ret = await AudioManagerAPI.playAudioSegment('piano', midiNote - 21, velocity);
     if (ret) {
       return ret;
     }
@@ -580,7 +580,7 @@ class PianoSynth {
       }
       keyElement.down = true;
     }
-    const velocity = 0.9 + Math.random() * 0.1;
+    const velocity = 0.7 + Math.random() * 0.3;
     if ((this.ansNotes != null) && (this.curInputIndex == this.ansNotes.length)) {
       // window.Display.showNotes(this.dispNotes, noteColors, this.dispNames, isFlatKey);
       onTestNext(this.checkCorrect());

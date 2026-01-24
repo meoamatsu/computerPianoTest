@@ -1,4 +1,4 @@
-// @version V1.0.0.3
+// @version V1.0.0.4
 //作者：电脑圈圈 https://space.bilibili.com/565718633
 //日期：2025-12-07
 //功能：合成钢琴音色
@@ -325,6 +325,27 @@ class AudioManager {
       this.updateProgressInfo(100, '处理音频完成');
       await new Promise(resolve => setTimeout(resolve, 10));
 
+      let peak = 0;
+      for (let i = 0; i < wavData.channels; i ++) {
+        let buf = wavData.data.getChannelData(i);
+        for (let j = 0; j < wavData.length; j ++) {
+          let v = buf[j];
+          if (v < 0) {
+            v = 0 - v;
+          }
+          if (v > peak) {
+            peak = v;
+          }
+        }
+      }
+      let scale = 0.9 / (peak + 0.01);
+      for (let i = 0; i < wavData.channels; i ++) {
+        let buf = wavData.data.getChannelData(i);
+        for (let j = 0; j < wavData.length; j ++) {
+          buf[j] *= scale;
+        }
+      }
+
       const audioData = {
         wavData: wavData,
         splitPoints: splitPoints,
@@ -487,10 +508,14 @@ class AudioManager {
       const source = this.audioContext.createBufferSource();
       source.buffer = audioBuffer;
 
-      const gainNode = this.audioContext.createGain();
-      gainNode.gain.value = volume;
+      const volNode = this.audioContext.createGain();
+      volNode.gain.value = volume;
 
-      source.connect(gainNode);
+      const gainNode = this.audioContext.createGain();
+      gainNode.gain.value = 1.0;
+
+      source.connect(volNode);
+      volNode.connect(gainNode);
       gainNode.connect(this.audioContext.destination);
 
       source.start(0);
@@ -610,9 +635,9 @@ window.AudioManagerAPI = {
     return await manager.loadMp3FromLocalDb(cacheId, currentVersion);
   },
 
-  playAudioSegment: async (cacheId, index) => {
+  playAudioSegment: async (cacheId, index, volume) => {
     const manager = await initAudioManager();
-    return manager.playAudioSegment(cacheId, index);
+    return manager.playAudioSegment(cacheId, index, volume);
   },
 
   getAudioSegmentCnt: async (cacheId) => {
