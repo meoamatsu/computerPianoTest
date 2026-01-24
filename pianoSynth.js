@@ -563,6 +563,11 @@ class PianoSynth {
         }
         noteColors = this.noteColors;
       }
+      const freq = this.midiToFrequency(note.note + shiftValue);
+      if (showAns && ((trainMode == "Train_single") || (playTimerId == -1))) {
+        globalInfoText = freq.toFixed(1) + 'Hz';
+        globalInfoTextSize = 30;
+      }
       this.dispNames += noteToSingName(note.note, isFlatKey);
       window.Display.showNotes(this.dispNotes, noteColors, this.dispNames, isFlatKey, this.skipAnsCnt);
       this.curInputIndex ++;
@@ -674,6 +679,7 @@ class PianoSynth {
       keyElement.style.transform = 'translateY(0)';
       if ((playTimerId == -1) && (this.ansNotes == null)) {
         this.cleanHistNoteInfo();
+        globalInfoText = "";
         window.Display.showNotes([]);
       }
     }

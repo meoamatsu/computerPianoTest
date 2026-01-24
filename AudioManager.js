@@ -524,18 +524,18 @@ class AudioManager {
     this.showProgressDialog();
 
     const allAudioRes = [
-      {key: 'piano', path: './audio/piano.mp3', ver: 'V1.0.0.2'},
-      {key: 'voice_000', path: './audio/voice_000.mp3', ver: 'V1.0.0.2'},
-      {key: 'voice_001', path: './audio/voice_001.mp3', ver: 'V1.0.0.2'},
-      {key: 'voice_002', path: './audio/voice_002.mp3', ver: 'V1.0.0.2'},
-      {key: 'voice_003', path: './audio/voice_003.mp3', ver: 'V1.0.0.2'},
-      {key: 'voice_600', path: './audio/voice_600.mp3', ver: 'V1.0.0.2'},
+      {key: 'piano', path: './audio/piano.mp3', ver: 'V1.0.0.2', force: false},
+      {key: 'voice_000', path: './audio/voice_000.mp3', ver: 'V1.0.0.2', force: false},
+      {key: 'voice_001', path: './audio/voice_001.mp3', ver: 'V1.0.0.2', force: false},
+      {key: 'voice_002', path: './audio/voice_002.mp3', ver: 'V1.0.0.2', force: false},
+      {key: 'voice_003', path: './audio/voice_003.mp3', ver: 'V1.0.0.2', force: false},
+      {key: 'voice_600', path: './audio/voice_600.mp3', ver: 'V1.0.0.2', force: false},
     ];
 
     for (let i = 0; i < allAudioRes.length; i ++) {
       try {
         this.cachedAudios[allAudioRes[i].key] = await this.checkVersionAndUpdate(allAudioRes[i].path,
-                allAudioRes[i].key, allAudioRes[i].ver, false);
+                allAudioRes[i].key, allAudioRes[i].ver, allAudioRes[i].force);
       } catch (error) {
         console.error('Audio update failed:', error);
         this.cachedAudios[allAudioRes[i].key] = null;
