@@ -1,4 +1,4 @@
-// @version V1.0.0.4
+// @version V1.0.0.5
 //作者：电脑圈圈 https://space.bilibili.com/565718633
 //日期：2025-12-07
 //功能：合成钢琴音色
@@ -549,12 +549,11 @@ class AudioManager {
     this.showProgressDialog();
 
     const allAudioRes = [
-      {key: 'piano', path: './audio/piano.mp3', ver: 'V1.0.0.2', force: false},
-      {key: 'voice_000', path: './audio/voice_000.mp3', ver: 'V1.0.0.2', force: false},
-      {key: 'voice_001', path: './audio/voice_001.mp3', ver: 'V1.0.0.2', force: false},
-      {key: 'voice_002', path: './audio/voice_002.mp3', ver: 'V1.0.0.2', force: false},
-      {key: 'voice_003', path: './audio/voice_003.mp3', ver: 'V1.0.0.2', force: false},
-      {key: 'voice_600', path: './audio/voice_600.mp3', ver: 'V1.0.0.2', force: false},
+      {key: 'piano', path: './audio/piano.mp3', ver: 'V1.0.0.2', force: false },
+      {key: 'voice_000', path: './audio/voice_000.mp3', ver: 'V1.0.0.3', force: false },
+      {key: 'voice_001', path: './audio/voice_001.mp3', ver: 'V1.0.0.3', force: false },
+      {key: 'voice_002', path: './audio/voice_002.mp3', ver: 'V1.0.0.3', force: false },
+      {key: 'voice_003', path: './audio/voice_003.mp3', ver: 'V1.0.0.3', force: false },
     ];
 
     for (let i = 0; i < allAudioRes.length; i ++) {

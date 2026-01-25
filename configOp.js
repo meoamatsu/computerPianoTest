@@ -1,4 +1,4 @@
-// @version V1.0.0.5
+// @version V1.0.0.6
 //作者：电脑圈圈 https://space.bilibili.com/565718633
 //日期：2025-12-07
 //功能：配置参数
@@ -90,7 +90,11 @@ async function playTipsThis() {
 }
 
 async function playTipsError() {
-  await AudioManagerAPI.playAudioSegment('voice_003', 0);
+  id = 'voice_003';
+  const cnt = await AudioManagerAPI.getAudioSegmentCnt(id);
+  if (cnt > 0) {
+    ret = await AudioManagerAPI.playAudioSegment(id, Math.floor(Math.random() * cnt));
+  }
 }
 
 async function playTipsNext() {
