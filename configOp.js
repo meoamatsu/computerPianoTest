@@ -1,4 +1,4 @@
-// @version V1.0.0.6
+// @version V1.0.0.7
 //作者：电脑圈圈 https://space.bilibili.com/565718633
 //日期：2025-12-07
 //功能：配置参数
@@ -618,7 +618,8 @@ function updateRefSel() {
   let lastIndex = selectElement.selectedIndex;
   selectElement.innerHTML = '';
 
-  for (let i = lowSelValue; i <= hiSelValue; i ++) {
+  // for (let i = lowSelValue; i <= hiSelValue; i ++) {
+  for (let i = 0; i < allOptNames.length; i ++) {
     if (i < 0) {
       break;
     }
@@ -647,6 +648,7 @@ function updateRefSel() {
   }
 
   refSelValue = parseInt(selectElement.value, 10);
+  updateRefIndicator();
 }
 
 function getHiKeepCnt() {
@@ -755,6 +757,7 @@ function onSeqLenSelClick() {
 
 function onRefSelClick() {
   refSelValue = parseInt(event.target.value, 10);
+  updateRefIndicator();
 }
 
 let userDefSpeed = 120;
@@ -800,6 +803,32 @@ function updateStartEndIndicator() {
     startEndIndicator.style.width = (parseFloat(keyElement.style.left)
         + parseFloat(keyElement.style.width)
         - parseFloat(startEndIndicator.style.left)) + 'px';
+  }
+}
+
+function updateRefIndicator() {
+  const refIndicator = document.querySelector(`[id='refIndicator']`);
+  if (refIndicator != null) {
+    refIndicator.style.display = 'none';
+  }
+  if (typeof refSelValue !== 'number') {
+    return;
+  }
+  if (refSelValue < 0) {
+    return;
+  }
+  if (isNaN(refSelValue)) {
+    return;
+  }
+  if (refIndicator != null) {
+    const refNote = allOptNotes[refSelValue];
+    var note = kbNotes[refNote - kbNotes[0].note];
+    var keyElement = document.querySelector(`[data-note="${note.name}"]`);
+    refIndicator.style.left = keyElement.style.left;
+    refIndicator.style.width = (parseFloat(keyElement.style.left)
+        + parseFloat(keyElement.style.width)
+        - parseFloat(refIndicator.style.left)) + 'px';
+    refIndicator.style.display = 'block';
   }
 }
 
