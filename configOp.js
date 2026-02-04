@@ -1,4 +1,4 @@
-// @version V1.0.0.7
+// @version V1.0.0.8
 //作者：电脑圈圈 https://space.bilibili.com/565718633
 //日期：2025-12-07
 //功能：配置参数
@@ -16,6 +16,8 @@ const triadChords = ['', 'm', 'm', '', '', 'm', 'dim'];
 const seventhChords = ['maj7', 'm7', 'm7', 'maj7', '7', 'm7', 'm7b5'];
 const ninthChords = ['maj9', 'm9', 'm7b9', 'maj9', '9', 'm9', 'm7b5b9'];
 const chordDegNames = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII'];
+
+const tipsVol = 0.3;
 
 function getChordFuncName(sing, nNotes) {
   if (nNotes == 3) {
@@ -78,7 +80,7 @@ async function playTipsThis() {
     }
     const cnt = await AudioManagerAPI.getAudioSegmentCnt(id);
     if (cnt > 0) {
-      ret = await AudioManagerAPI.playAudioSegment(id, Math.floor(Math.random() * cnt));
+      ret = await AudioManagerAPI.playAudioSegment(id, Math.floor(Math.random() * cnt), tipsVol);
     }
   }
 
@@ -90,23 +92,32 @@ async function playTipsThis() {
 }
 
 async function playTipsError() {
-  id = 'voice_003';
+  let id = 'voice_003';
   const cnt = await AudioManagerAPI.getAudioSegmentCnt(id);
   if (cnt > 0) {
-    ret = await AudioManagerAPI.playAudioSegment(id, Math.floor(Math.random() * cnt));
+    ret = await AudioManagerAPI.playAudioSegment(id, Math.floor(Math.random() * cnt), tipsVol);
   }
 }
 
 async function playTipsNext() {
   let ret = false;
+  let need = false;
 
   if (trainMode.endsWith("interval") || trainMode.endsWith("block_chord")) {
-    if ((playInterval >= 500) && (trainTimes + ansTimes >= 3)) {
-      ret = await AudioManagerAPI.playAudioSegment('voice_001', 0);
+    if ((playInterval >= 500) && (trainTimes + ansTimes >= 5)) {
+      need = true;
     }
   } else {
-    if ((seqLen >= 3) && (playInterval >= 300) && (trainTimes + ansTimes >= 3)) {
-      ret = await AudioManagerAPI.playAudioSegment('voice_001', 0);
+    if ((seqLen >= 3) && (playInterval >= 500) && (trainTimes + ansTimes >= 5)) {
+      need = true;
+    }
+  }
+
+  if (need === true) {
+    let id = 'voice_001';
+    const cnt = await AudioManagerAPI.getAudioSegmentCnt(id);
+    if (cnt > 0) {
+      ret = await AudioManagerAPI.playAudioSegment(id, Math.floor(Math.random() * cnt), tipsVol);
     }
   }
 

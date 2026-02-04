@@ -1,4 +1,4 @@
-// @version V1.0.0.4
+// @version V1.0.0.5
 //作者：电脑圈圈 https://space.bilibili.com/565718633
 //日期：2025-12-07
 //功能：合成钢琴音色
@@ -647,22 +647,32 @@ class PianoSynth {
 
   onKeyRelease(obj, note, curPlayCtl, vol) {
     const noteVal = note.note + shiftValue;
-    if (vol <= 0.01) {
-      curPlayCtl.stop();
+    let keepPlayTh = 0.02 + 0.3 * (noteVal - 60) / (108 - 60);
+    if (keepPlayTh < 0.02) {
+        keepPlayTh = 0.02;
+    }
+    if (vol <= keepPlayTh) {
+      // curPlayCtl.stop();
       curPlayCtl = null;
     } else {
       curPlayCtl.setVolume(vol);
       let ratio = 0.96;
       if (noteVal < 30) {
         ratio = 0.985;
-      } else if (noteVal < 33) {
-        ratio = 0.98;
+      } else if (noteVal < 40) {
+        ratio = 0.983;
       } else if (noteVal < 45) {
-        ratio = 0.97;
+        ratio = 0.975;
       } else if (noteVal < 57) {
-        ratio = 0.965;
+        ratio = 0.975;
       } else if (noteVal < 69) {
-        ratio = 0.96;
+        ratio = 0.975;
+      } else if (noteVal < 81) {
+        ratio = 0.980;
+      } else if (noteVal < 93) {
+        ratio = 0.985;
+      } else {
+        ratio = 0.990;
       }
       setTimeout(obj.onKeyRelease, 1, obj, note, curPlayCtl, vol * ratio);
     }
@@ -687,7 +697,7 @@ class PianoSynth {
       return;
     }
     if (keyElement.curPlayCtl) {
-      setTimeout(this.onKeyRelease, 100, this, note, keyElement.curPlayCtl, 1.0);
+      setTimeout(this.onKeyRelease, 200, this, note, keyElement.curPlayCtl, 1.0);
       keyElement.curPlayCtl = null;
     }
   }
