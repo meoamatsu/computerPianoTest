@@ -91,7 +91,7 @@ function configUiLoad() {
   htmls.innerHTML = `
   <table>
     <tr class="headers">
-      <td>模式</td><td>音阶</td><td>音组</td><td>最低音</td><td>最高音</td><td>参考音</td>
+      <td>模式</td><td>音阶</td><td>音组</td><td>最低音</td><td>最高音</td><td>参考音</td><td>半音</td>
       <td>速度</td><td>听音</td><td>答案</td><td>八度</td>
       <td rowspan='2'>
         <button onclick="onStartStoplick()" name="START_STOP" id="START_STOP" value="" class="buttons">开始</button>
@@ -153,6 +153,13 @@ function configUiLoad() {
 
       <td>
         <select class="selects" name="refSelect" onchange="onRefSelClick()">
+        </select>
+      </td>
+
+      <td>
+        <select class="selects" name="halfToneSelect" onchange="onHalfToneSelClick()">
+        <option value='0'>关闭</option>
+        <option value='1'>开启</option>
         </select>
       </td>
 

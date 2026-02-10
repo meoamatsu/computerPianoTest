@@ -298,6 +298,7 @@ var endNote = 72;
 var mainNote = 0;
 var isFlatKey = false;
 var seqLen = 3;
+var enableHalfTone = false;
 
 const majSeq = [0, 2, 4, 5, 7, 9, 11];
 
@@ -316,6 +317,9 @@ function myRandom() {
 
 function genOneNote() {
   var note = Math.floor(Math.random()  * (endNote - startNote) + 0.5) + startNote;
+  if (enableHalfTone) {
+    return note;
+  }
   const res = (note + 12 - mainNote) % 12;
   var j;
 
@@ -862,6 +866,11 @@ function onAnsTimesSelClick() {
   ansTimes = parseInt(event.target.value, 10);
 }
 
+function onHalfToneSelClick() {
+  const val = parseInt(event.target.value, 10);
+  enableHalfTone = (val === 1);
+}
+
 function onShiftSelClick() {
   shiftValue = parseInt(event.target.value, 10) * 12;
   updateKbNoteNames();
@@ -917,6 +926,7 @@ const configPairs = [
   {key:'trainTimesSelect', def:'3'},
   {key:'ansTimesSelect', def:'2'},
   {key:'shiftSelect', def:'+1'},
+  {key:'halfToneSelect', def:'0'},
 ];
 
 function loadAllConfigs() {
@@ -985,6 +995,7 @@ const needDisableUis = [
   {key:'trainTimesSelect'},
   {key:'ansTimesSelect'},
   // {key:'shiftSelect'},
+  {key:'halfToneSelect'},
 ];
 
 function disableUi(disabledReq) {
